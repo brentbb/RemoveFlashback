@@ -6,6 +6,8 @@
 #      https://github.com/yoshiokatsuneo/RemoveFlashback
 #    and changes by F-Secure at:
 #       https://www.f-secure.com/weblog/archives/00002346.html
+#    modified to check all user LaunchAgents and environments by Brent B
+#      https://github.com/brentbb/RemoveFlashback
 #
 #
 # Ref:
