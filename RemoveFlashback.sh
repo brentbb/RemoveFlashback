@@ -4,6 +4,9 @@
 #   -- Flashback removal tool --
 #    Based on a script by Yoshioka Tsuneo:
 #      https://github.com/yoshiokatsuneo/RemoveFlashback
+#    and changes by F-Secure at:
+#       https://www.f-secure.com/weblog/archives/00002346.html
+#
 #
 # Ref:
 #   F-Secure Weblog - Mac Flashback Infections
