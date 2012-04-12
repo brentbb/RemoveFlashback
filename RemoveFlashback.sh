@@ -56,7 +56,7 @@ if [ "$EUID" -eq "0" ]; then
     adminmode=true
     echo "------- Admin mode"
     scanonly=true
-    echo "------- Scanonly mode (FORCED)
+    echo "------- Scanonly mode (FORCED)"
 else
     adminmode=false
     echo "------- User mode"
@@ -124,17 +124,39 @@ check_launchagent()
         filename=`basename "$pathname"`
         if echo $filename | grep -q '^\.' ; then
             infected=1
-	    if $scanonly; then
+        if $scanonly; then
                 echo "File $pathname is most likely Flashback"
-	    else
+        else
                 echo "File $pathname is most likely Flashback -- removing"
-           	quarantine_later "$pathname"
+            quarantine_later "$pathname"
                 quarantine_later "$plist"
-	    fi
+        fi
         fi
     done
 }
-
+check_all_user_launchagent()
+{
+    for userDir in /Users/*; do
+        for plist in $userDir/Library/LaunchAgents/* ; do 
+            prop=`echo $plist | sed -e 's/\.plist$//'`
+            pathname=`defaults read $prop ProgramArguments 2> /dev/null | head -2 | tail -1 | sed -e 's/.*"\(.*\)".*/\1/'`
+            if [ -z "$pathname" ] ; then
+                continue
+            fi
+            filename=`basename "$pathname"`
+            if echo $filename | grep -q '^\.' ; then
+                infected=1
+            if $scanonly; then
+                    echo "File $pathname is most likely Flashback"
+            else
+                    echo "File $pathname is most likely Flashback -- removing"
+                quarantine_later "$pathname"
+                    quarantine_later "$plist"
+            fi
+            fi
+        done
+    done
+}
 file_is_signed() {
     codesign -R="anchor trusted" -v "$1" 2> /dev/null
 }
@@ -245,7 +267,7 @@ if [ -n "$global_dyld" ] && path_contains_malware "$global_dyld" ; then
 fi
 
 if $adminmode; then
-#check everyone's launchagents
+    check_all_user_launchagent
 else
     check_launchagent   
 fi
@@ -259,7 +281,9 @@ if ! $scanonly; then
 fi
 
 if $adminmode; then
-#check everyone's environments
+    for userDir in /Users/*; do
+        check_macosx_environment_plist "${userDir}/.MacOSX/environment"
+    done
 else
     check_macosx_environment_plist "${macosx_environment_plist}"
 fi
