@@ -13,6 +13,7 @@
 #   http://www.f-secure.com/weblog/archives/00002345.html
 #
 
+PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 timestamp=`date '+%Y%m%d-%H%M%S'`
 infected=0
 tmpfilename_base=/tmp/RemoveFlashback.$$
