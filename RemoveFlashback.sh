@@ -51,6 +51,17 @@ else
     echo "------- Quarantine mode"
 fi
 
+# Check if we are effectively root
+if [ "$EUID" -eq "0" ]; then
+    adminmode=true
+    echo "------- Admin mode"
+    scanonly=true
+    echo "------- Scanonly mode (FORCED)
+else
+    adminmode=false
+    echo "------- User mode"
+fi
+
 files_to_quarantine=/tmp/FS_to_quarantine
 rm -f $files_to_quarantine
 
@@ -233,7 +244,11 @@ if [ -n "$global_dyld" ] && path_contains_malware "$global_dyld" ; then
     fi
 fi
 
-check_launchagent
+if $adminmode; then
+#check everyone's launchagents
+else
+    check_launchagent   
+fi
 check_browser_plist "${safari_plist_base}"
 if ! $scanonly; then
     touch /Applications/Safari.app
@@ -242,8 +257,12 @@ check_browser_plist "${firefox_plist_base}"
 if ! $scanonly; then
     [ -d /Applications/Firefox.app ] && touch /Applications/Firefox.app
 fi
-check_macosx_environment_plist "${macosx_environment_plist}"
 
+if $adminmode; then
+#check everyone's environments
+else
+    check_macosx_environment_plist "${macosx_environment_plist}"
+fi
 quarantine
 
 if [ -f "${tmpfilename_base}.plist" ]; then
